@@ -10,6 +10,6 @@
 
 ## 0-2 Vagrantのインストール
 1. [Vagrantの公式サイト](http://www.vagrantup.com/downloads)から本体をダウンロード
-2. `dpkg -i vagrant_1.7.2_x86_64.deb`を実行しインストール
+2. `sudo dpkg -i vagrant_1.7.2_x86_64.deb`を実行しインストール
 3. `vagrant -v`を実行し動作確認
 

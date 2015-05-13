@@ -105,5 +105,110 @@ yumやwgetを使用する時のproxyの設定を行います。
 3. `wget https://www.google.co.jp/`を実行し「index.html」がダウロードできることを確認
 
 ## 1-2 Wordpressを動かす(1)
+Wordpressを動作させるのに必要なソフトウェアをインストールしていきます。
 
+1. sshで仮想マシンに接続する
 
+ `ssh administrator@192.168.56.101`
+
+### Apacheのインストール
+1. 次のコマンドを実行しApacheをインストールする
+  * `sudo yum -y install httpd`
+2. インストールできたことを確認するため、以下のコマンドも実行
+ * `httpd -v`
+
+### MySQLのインストール
+1. 次のコマンドを実行しMySQLのリポジトリを追加します。
+ * `sudo yum -y install http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm`
+2. リポジトリを追加できたら、MySQL Community Server をインストールします。
+ * `sudo yum -y install mysql-community-server`
+3. インストールできたことを確認するため、以下のコマンドを実行しバージョンを確認
+ * `mysqld --version`
+
+### PHPのインストール
+1. 次のコマンドを実行しPHPをインストール
+ * `sudo yum -y install php php-mysql`
+2. インストールできたことを確認するため、次のコマンドを実行しバージョンを表示
+ * `php --version`
+
+### サーバーの起動
+LAMP環境に必要なソフトウェアがインストールできたので、インストールしたそれぞれのサーバーを起動します。
+
+1. サーバーを再起動しても起動時に自動的にサーバーが起動するように設定。
+ * `sudo systemctl enable httpd.service`
+ * `sudo systemctl enable mysqld.service`
+2. サーバーを起動します。
+ * `sudo systemctl start httpd.service`
+ * `sudo systemctl start mysqld.service`
+3. サーバーが起動できているかどうかを確認します。
+ * `systemctl is-active httpd.service`
+ * `systemctl is-active mysqld.service`
+
+### データベースとユーザーを作成
+1. mysqlにログインします。
+ * `mysql -u root -p`
+2. データベースを作成します
+
+  `mysql>CREATE DATABASE db_wordpress;`
+  `mysql>GRANT ALL PRIVILEGES ON db_wordpress.* TO s13012_wordpress@localhost IDENTIFIED BY "pw_wordpress";`
+  `mysql>FLUSH PRIVILEGES;`  
+  `mysql>EXIT`
+
+  * データベース名:db_wordpress
+  * ユーザー名:s13012_wordpress
+  * ユーザパスワード:pw_wordpress
+
+### Wordpressの初期設定
+1. Wordpressをダウンロード・解凍します。
+ * `wget https://ja.wordpress.org/wordpress-4.2.2-ja.tar.gz`
+ * `tar -xzvf wordpress-4.2.2-ja.tar.gz`
+2. 解凍後、公開ディレクトリにファイルを移動
+ * `sudo mv wordpress /var/www/html/`
+3. Wordpress設定ファイルを作成
+ * `cd /var/www/html/wordpress`
+ * `sudo cp wp-config-sample.php wp-config.php`
+ * `sudo vi wp-config.php`
+4. MySQLに作成したデータベース名、ユーザー、パスワードを設定
+ * define('DB_NAME', 'database_name_here'); -> define('DB_NAME', 'db_wordpress);
+ * define('DB_USER', 'username_here'); -> define('DB_USER', 's13012_wordpress');
+ * define('DB_PASSWORD', 'password_here'); -> define('DB_PASSWORD', 'pw_wordpress');
+5. ユニークキーを設定
+
+  　[オンラインジェネレータ](https://api.wordpress.org/secret-key/1.1/salt/)を使用してユニークキーを設定していきます。
+
+  define('AUTH_KEY',         'put your unique phrase here');  
+  define('SECURE_AUTH_KEY',  'put your unique phrase here');  
+  define('LOGGED_IN_KEY',    'put your unique phrase here');  
+  define('NONCE_KEY',        'put your unique phrase here');  
+  define('AUTH_SALT',        'put your unique phrase here');  
+  define('SECURE_AUTH_SALT', 'put your unique phrase here');  
+  define('LOGGED_IN_SALT',   'put your unique phrase here');  
+  define('NONCE_SALT',       'put your unique phrase here');  
+  ⇣⇣  
+  define('AUTH_KEY',         '?ztGNkFX*d.~.O}6[V+piklE<@^Ot2dYc>u$+S>H#r?_ASw!fQ,li=INn9q*G-v8');  
+  define('SECURE_AUTH_KEY',  'zFH=tr+W~K>~f4Lv+3W|*P+IJ|b2FvAGyZ;$9,SCPezDn.rgT$b74~U1 pvB6G5\`');  
+  define('LOGGED_IN_KEY',    ';6J/qpq_UOA2`5]|f+i|c9Sj3Rv`#Vz@|IJ&UW(Y!35a|k<40|$D#geo6SeF_VK7');  
+  define('NONCE_KEY',        '_]>[TIG.o*bwc[2-Z Dx.0w&QE:{4d1pWY*uB;4r*GK?6vgI^)[J,v_.6lJ,vc6_');  
+  define('AUTH_SALT',        '$||&[e#]-4#E*{-iKJEa>lTV^p#kuq!|ta-H,2{^JFu7e}Q+aAmGvd$796o}oCr>');  
+  define('SECURE_AUTH_SALT', 'w]1Gj?</AHT3Uj,y7#1UJG-!saz@c2-NK}*XFVVx]/)cR+P%>^&Nb;vosC7wb2|r');  
+define('LOGGED_IN_SALT',   'Z-X/g9@1r2k[A]?USFL=!xwHaSTH(;RiG=Z/h|--kTRP5O(: m|>yPjJ<Q@ryQ{U');  
+  define('NONCE_SALT',       'Ur3&C:&SVGTSl63HJvBX?QK{Y{NES$4t4DkDJ#noKjxOHYl0QY$<{}uXm3Z6r=*f');  
+
+### UbuntuからCentOS上のWordpressを開くための設定
+
+1. CentOSのファイアウォールを無効にします。
+ * `sudo systemctl disable firewall.service`
+2. SELinuxを無効にします。
+ * `vi /etc/selinux/config`
+ * `SELINUX=enforcing -> SELINUX=disable`
+
+### Wordpressのインストール
+1. ブラウザ上から「http://192.168.56.101/wordpress/wp-admin/install.php」にアクセス
+2. 必要情報を入力していきます。
+ * サイトのタイトル:s13012_WeSite
+ * ユーザー名:s13012
+ * パスワード:password
+ * メールアドレス:s13012@std.it-college.ac.jp
+ * 検索エンジンによるサイトのインデックスを許可する:チェックを入れる
+3. 「WordPressをインストール」をクリックします。
+4. 「ログイン」ボタンをクリックし管理画面を開きます。

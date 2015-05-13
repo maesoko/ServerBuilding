@@ -203,7 +203,7 @@ define('LOGGED_IN_SALT',   'Z-X/g9@1r2k[A]?USFL=!xwHaSTH(;RiG=Z/h|--kTRP5O(: m|>
  * `SELINUX=enforcing -> SELINUX=disable`
 
 ### Wordpressのインストール
-1. ブラウザ上から「http://192.168.56.101/wordpress/wp-admin/install.php」にアクセス
+1. ブラウザ上から`http://192.168.56.101/wordpress/wp-admin/install.php`にアクセス
 2. 必要情報を入力していきます。
  * サイトのタイトル:s13012_WeSite
  * ユーザー名:s13012

@@ -149,10 +149,10 @@ LAMP環境に必要なソフトウェアがインストールできたので、�
  * `mysql -u root -p`
 2. データベースを作成します
 
-  `mysql>CREATE DATABASE db_wordpress;`
-  `mysql>GRANT ALL PRIVILEGES ON db_wordpress.* TO s13012_wordpress@localhost IDENTIFIED BY "pw_wordpress";`
+  `mysql>CREATE DATABASE db_wordpress;`  
+  `mysql>GRANT ALL PRIVILEGES ON db_wordpress.* TO s13012_wordpress@localhost IDENTIFIED BY "pw_wordpress";`  
   `mysql>FLUSH PRIVILEGES;`  
-  `mysql>EXIT`
+  `mysql>EXIT`  
 
   * データベース名:db_wordpress
   * ユーザー名:s13012_wordpress

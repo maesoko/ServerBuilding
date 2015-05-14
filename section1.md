@@ -201,6 +201,7 @@ define('LOGGED_IN_SALT',   'Z-X/g9@1r2k[A]?USFL=!xwHaSTH(;RiG=Z/h|--kTRP5O(: m|>
 2. SELinuxを無効にします。
  * `vi /etc/selinux/config`
  * `SELINUX=enforcing -> SELINUX=disable`
+ * `sudo setenforce 0`
 
 ### Wordpressのインストール
 1. ブラウザ上から`http://192.168.56.101/wordpress/wp-admin/install.php`にアクセス

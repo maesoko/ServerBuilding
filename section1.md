@@ -67,37 +67,29 @@ yumやwgetを使用する時のproxyの設定を行います。
 
 1. vimで「/etc/profile」を開きます。
 2. 最終行に以下を追記 
-
-  MY_PROXY_URL="http://172.16.40.1:8888"
-
-  HTTP_PROXY=$MY_PROXY_URL
-
-  HTTPS_PROXY=$MY_PROXY_URL
-
-  FTP_PROXY=$MY_PROXY_URL
-
-  http_proxy=$MY_PROXY_URL
-
-  https_proxy=$MY_PROXY_URL
-
-  ftp_proxy=$MY_PROXY_URL
-
-  export HTTP_PROXY HTTPS_PROXY FTP_PROXY http_proxy https_proxy ftp_proxy
-
+```
+MY_PROXY_URL="http://172.16.40.1:8888"
+HTTP_PROXY=$MY_PROXY_URL
+HTTPS_PROXY=$MY_PROXY_URL
+FTP_PROXY=$MY_PROXY_URL
+http_proxy=$MY_PROXY_URL
+https_proxy=$MY_PROXY_URL
+ftp_proxy=$MY_PROXY_URL
+export HTTP_PROXY HTTPS_PROXY FTP_PROXY http_proxy https_proxy ftp_proxy
+```
 3. `source /etc/profile`を実行
 4. vimで「/etc/yum.conf」を開きます。
 5. 最終行に以下を追加
-
-  proxy=http://172.16.40.1:8888
+```
+proxy=http://172.16.40.1:8888
+```
 6. vimで「~/.wgetrc」を開きます。
 7. 最終行に以下を追記
-
-  http_proxy = http://172.16.40.1:8888
-
-  https_proxy = http://172.16.40.1:8888
-
-  ftp_proxy = http://172.16.40.1:8888
-
+```
+http_proxy = http://172.16.40.1:8888
+https_proxy = http://172.16.40.1:8888
+ftp_proxy = http://172.16.40.1:8888
+```
 ### アップデート
 1. `sudo yum update`を実行
 2. wgetをyumでインストール
@@ -148,11 +140,12 @@ LAMP環境に必要なソフトウェアがインストールできたので、�
 1. mysqlにログインします。
  * `mysql -u root -p`
 2. データベースを作成します
-
-  `mysql>CREATE DATABASE db_wordpress;`  
-  `mysql>GRANT ALL PRIVILEGES ON db_wordpress.* TO s13012_wordpress@localhost IDENTIFIED BY "pw_wordpress";`  
-  `mysql>FLUSH PRIVILEGES;`  
-  `mysql>EXIT`  
+```
+mysql>CREATE DATABASE db_wordpress;  
+mysql>GRANT ALL PRIVILEGES ON db_wordpress.* TO s13012_wordpress@localhost IDENTIFIED BY pw_wordpress;
+mysql>FLUSH PRIVILEGES;
+mysql>EXIT
+```
 
   * データベース名:db_wordpress
   * ユーザー名:s13012_wordpress
@@ -169,22 +162,32 @@ LAMP環境に必要なソフトウェアがインストールできたので、�
  * `sudo cp wp-config-sample.php wp-config.php`
  * `sudo vi wp-config.php`
 4. MySQLに作成したデータベース名、ユーザー、パスワードを設定
- * define('DB_NAME', 'database_name_here'); -> define('DB_NAME', 'db_wordpress);
- * define('DB_USER', 'username_here'); -> define('DB_USER', 's13012_wordpress');
- * define('DB_PASSWORD', 'password_here'); -> define('DB_PASSWORD', 'pw_wordpress');
+```
+define('DB_NAME', 'database_name_here');
+define('DB_USER', 'username_here');
+define('DB_PASSWORD', 'password_here');
+```
+⇣⇣⇣⇣⇣⇣⇣
+```
+define('DB_NAME', 'db_wordpress');
+define('DB_USER', 's13012_wordpress');
+define('DB_PASSWORD', 'pw_wordpress');
+```
 5. ユニークキーを設定
 
   　[オンラインジェネレータ](https://api.wordpress.org/secret-key/1.1/salt/)を使用してユニークキーを設定していきます。
-
-  define('AUTH_KEY',         'put your unique phrase here');  
-  define('SECURE_AUTH_KEY',  'put your unique phrase here');  
-  define('LOGGED_IN_KEY',    'put your unique phrase here');  
-  define('NONCE_KEY',        'put your unique phrase here');  
-  define('AUTH_SALT',        'put your unique phrase here');  
-  define('SECURE_AUTH_SALT', 'put your unique phrase here');  
-  define('LOGGED_IN_SALT',   'put your unique phrase here');  
-  define('NONCE_SALT',       'put your unique phrase here');  
-  ⇣⇣  
+```
+define('AUTH_KEY',         'put your unique phrase here');  
+define('SECURE_AUTH_KEY',  'put your unique phrase here');  
+define('LOGGED_IN_KEY',    'put your unique phrase here');  
+define('NONCE_KEY',        'put your unique phrase here');  
+define('AUTH_SALT',        'put your unique phrase here');  
+define('SECURE_AUTH_SALT', 'put your unique phrase here');  
+define('LOGGED_IN_SALT',   'put your unique phrase here');  
+define('NONCE_SALT',       'put your unique phrase here');  
+```
+⇣⇣⇣⇣⇣⇣⇣
+```
   define('AUTH_KEY',         '?ztGNkFX*d.~.O}6[V+piklE<@^Ot2dYc>u$+S>H#r?_ASw!fQ,li=INn9q*G-v8');  
   define('SECURE_AUTH_KEY',  'zFH=tr+W~K>~f4Lv+3W|*P+IJ|b2FvAGyZ;$9,SCPezDn.rgT$b74~U1 pvB6G5\`');  
   define('LOGGED_IN_KEY',    ';6J/qpq_UOA2`5]|f+i|c9Sj3Rv`#Vz@|IJ&UW(Y!35a|k<40|$D#geo6SeF_VK7');  
@@ -193,6 +196,7 @@ LAMP環境に必要なソフトウェアがインストールできたので、�
   define('SECURE_AUTH_SALT', 'w]1Gj?</AHT3Uj,y7#1UJG-!saz@c2-NK}*XFVVx]/)cR+P%>^&Nb;vosC7wb2|r');  
 define('LOGGED_IN_SALT',   'Z-X/g9@1r2k[A]?USFL=!xwHaSTH(;RiG=Z/h|--kTRP5O(: m|>yPjJ<Q@ryQ{U');  
   define('NONCE_SALT',       'Ur3&C:&SVGTSl63HJvBX?QK{Y{NES$4t4DkDJ#noKjxOHYl0QY$<{}uXm3Z6r=*f');  
+```
 
 ### UbuntuからCentOS上のWordpressを開くための設定
 

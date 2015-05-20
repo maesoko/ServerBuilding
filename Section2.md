@@ -295,10 +295,10 @@ DirectoryIndex index.html
 ServerName localhost:80
 DirectoryIndex index.html index.php
 ```
-最終行に以下を追記し、拡張子.phpのファイルをPHPスクリプトとして動作させるための設定します
+最終行に以下を追記し、拡張子.phpのファイルをPHPスクリプトとして動作させるための設定をします
 ```
 <FilesMatch \.php$>
-SetHandler application/x-httpd-php
+　SetHandler application/x-httpd-php
 </FilesMatch>
 ```
 

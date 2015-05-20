@@ -90,9 +90,11 @@ ftp_proxy = http://172.16.40.1:8888
 ### Nginxのインストール
 1. Nginxの[公式サイト](http://nginx.org/en/linux_packages.html#stable)からリポジトリ追加用のrpmをダウンロードします。
  * `wget http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm`
-2. Nginxをyumでインストール
+2. Nginxのリポジトリを追加
+ * `sudo yum -y install nginx-release-centos-7-0.el7.ngx.noarch.rpm`
+3. Nginxをyumでインストール
  * `sudo yum install nginx`
-3. Nginxを有効にして起動します
+4. Nginxを有効にして起動します
  * `sudo systemctl enable nginx.service`
  * `sudo systemctl start nginx.service`
 
@@ -239,9 +241,150 @@ SELinux=disable
  * 検索エンジンによるサイトのインデックスを許可する。: チェックを入れる
 8. IDとパスワードを入力後ログインをクリックし管理画面を開きます
 
-
 ## 2-3 Wordpressを動かす(3)
+Apache HTTP Server 2.2とPHP5.5の環境を構築し、Wordpressを動作させていきます。
 
+※今回はIPアドレスに`192.168.56.131`を使用します   
+※vagrantやプロキシの初期設定は既に書いたので省略します。
+
+### MySQLのインストール
+今回はデーターベースにMySQLを使用します。
+
+1. MySQLのリポジトリを追加します
+ * `sudo yum -y install http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm`
+2. MySQL Community Serverをインストールします
+ * `sudo yum -y install mysql-community-server`
+3. インストール完了を確認します
+ * `mysqld --version`
+4. MySQLを有効にして起動します
+```
+sudo systemctl enable mysqld.service
+sudo systemctl start mysqld.service
+```
+
+### データーベースとユーザーを作成
+1. データベースにログインします
+ * `mysqld -u root -p`   
+　パスワードを聞かれますが、そのままエンターキーを押して続行
+2. データベースを作成します（2-2で既に書いたので説明は省きます。
+3. ユーザー権限の設定をします
+
+### Apache HTTP Server 2.2のインストール
+1. Apache HTTP Server 2.2をダウンロードします。
+ * `wget http://ftp.jaist.ac.jp/pub/apache//httpd/httpd-2.2.29.tar.gz`
+2. ダウンロードしたファイルを解凍します。
+ * `tar xzf httpd-2.2.29.tar.gz`
+3. ディレクトリに移動します
+ * `cd httpd-2.2.29`
+4. Makefileを作成します
+ * `./configure`
+5. ビルドします
+ * `make`
+6. インストールします
+ * `make install`
+7. 設定ファイルを開き、内容を編集します。
+```
+sudo vi /usr/local/apache2/conf/httpd.conf
+```
+```
+#ServerName www.example.com:80
+DirectoryIndex index.html
+```
+⇣⇣⇣⇣⇣⇣⇣⇣
+```
+ServerName localhost:80
+DirectoryIndex index.html index.php
+```
+最終行に以下を追記し、拡張子.phpのファイルをPHPスクリプトとして動作させるための設定します
+```
+<FilesMatch \.php$>
+SetHandler application/x-httpd-php
+</FilesMatch>
+```
+
+8. バージョンを確認します
+ * `/usr/local/apache2/bin/apachectl -v`   
+　「Server version: Apache/2.2.29 (Unix)」と表示されたら成功
+9. サーバーを起動します。
+ * `sudo /usr/local/apache2/bin/apachectl -k start`
+10. サーバーを停止します。
+ * `sudo /usr/local/apache2/bin/apachectl -k stop`
+
+### libxml2ソースファイルのダウンロード&インストール
+PHP5.5インストール時に必要なlibxml2をインストールしていきます。
+
+1. まず、libxml2インストールに必要なPython関連のパッケージをインストールします
+ * `sudo yum -y install python-devel`
+2. libxml2ソースファイルをダウンロードします。
+ * `wget http://xmlsoft.org/sources/libxml2-2.9.2.tar.gz`
+3. ダウンロードしたファイルを解凍して移動します
+```
+tar xzf libxml2-2.9.2.tar.gz
+cd  libxml2-2.9.2
+```
+4. Makefileを作成し、ビルドとインストールをします。
+```
+./configure
+make
+sudo make install
+```
+
+
+### PHP5.5のインストール
+1. PHPのソースファイルをダウロードします
+ * `wget http://jp2.php.net/get/php-5.5.25.tar.gz/from/this/mirror`
+2. ダウンロードしたファイルを解凍します
+ * `tar xzf mirror`
+3. 解凍後ディレクトリを移動します
+ * `cd php-5.5.25`
+4. コンパイルオプションを指定していきます
+```
+./configure \
+--with-apxs2=/usr/local/apache/bin/apxs \
+--with-mysql \
+--prefix=/usr/local/apache/php \
+--with-config-file-path=/usr/local/apache/php \
+--enable-force-cgi-redirect \
+--disable-cgi \
+--with-zlib \
+--with-gettext \
+--with-gdbm
+```
+5. ビルドしてインストールします
+```
+make
+sudo make install
+```
+6. バージョンを確認
+ * `php -v`   
+　「PHP 5.5.25 (cli)」と表示されたら成功
+
+### Wordpressのインストール
+1. Wordpress最新版をダウンロードします
+ * `wget https://ja.wordpress.org/latest-ja.zip`
+2. wgetをインストールします。
+ * `sudo yum -y install latest-ja.zip`
+3. ダウンロードしたファイルを解凍します
+ * `unzip latest-ja.zip`
+4. 解凍したディレクトリを公開ディレクトリに移動させます
+ * `sudo mv wordpress/ /usr/local/apache2/htdocs/`
+5. `http://192.168.56.131/wordpress/`にブラウザでアクセスして必要情報を入力していきます
+ * データベース名:[MySQLで作成したデータベース名]
+ * ユーザー名:[MySQLで作成したユーザ名]
+ * パスワード:[MySQLで設定したパスワード]
+ * データベースのホスト名:localhost
+ * テーブル接頭辞: wp\_   
+必要情報を入力したら「送信」ボタンをクリックします。
+6. wp-config.php ファイルを手動で作成し、表示されたテキストをコピー&ペーストします
+```
+sudo vi /usr/local/apache2/htdocs/wordpress/wp-config.php
+※`Ctrl+Shit+V`でコピーしたテキストをペーストします
+```
+ペーストして保存したら「インストール実行」をクリック
+7. 必要情報を入力したら「Wordpressをインストール」をクリックして続行(各項目の説明は既に書いたので省略します。
+8. ユーザ名とパスワードを入力後「ログイン」をクリック
+9. ダッシュボードでサイトタイトルをマウスでホバーして「サイトの表示」を押してサイトが表示されればインストール完了。
 
 ## 2-4 ベンチマークを取る
 
+## 2-4 セキュリティチェック

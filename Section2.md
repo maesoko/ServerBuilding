@@ -507,12 +507,12 @@ Percentage of the requests served within a certain time (ms)
 100%    101 (longest request)
 ```
 PageSpeed
-```console
+```
 //高速化前
 Page Speed Score: 67/100
 ```
 ⇣⇣⇣⇣⇣⇣⇣⇣
-```console
+```
 //高速化後
 Page Speed Score: 78/100
 ```

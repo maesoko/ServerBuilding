@@ -407,6 +407,7 @@ Google ChromeにPageSpeed拡張をインストールし、ベンチマークを�
 ### Wordpressの高速化
 
 立ち上げたWordpressを高速化し、ab および PageSpeedを使用して、改善されたかを確認します。
+
 1. apacheでコンテンツを圧縮するのに必要なモジュールをコンパイルします。
  * `sudo /usr/local/apache2/bin/apxs -c -i -a /home/vagrant/httpd-2.2.29/modules/filters/mod_deflate.c`
 2. httpd.confを編集してコンテンツを圧縮する設定をします。

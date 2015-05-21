@@ -11,7 +11,7 @@
  * `mkdir -p ~/ServerBuilding/CentOS7`
 2. 作成したディレクトリの中で初期設定を行います。
  * `vagrant init`
-3. 作成された”Vagrantfile”をvimで開き、設定を書き換えてCentOS6.5が起動するようにします。
+3. 作成された”Vagrantfile”をvimで開き、設定を書き換えてCentOS7が起動するようにします。
 ```
 　config.vm.box = "base"
 ```
@@ -518,4 +518,4 @@ Page Speed Score: 67/100
 Page Speed Score: 78/100
 ```
 
-## 2-4 セキュリティチェック
+## 2-5 セキュリティチェック

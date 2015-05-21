@@ -397,8 +397,8 @@ ab -n 1000 -c 100 http://192.168.56.131:80/
 ```
 
 ### PageSpeed
+Google ChromeにPageSpeed拡張をインストールし、ベンチマークを取ります。   
 
-Google ChromeにPageSpeed拡張をインストールし、ベンチマークを取ります。
 1. [chromeウェブストア](https://chrome.google.com/webstore/detail/page-speed-insights-with/lanlbpjbalfkflkhegagflkgcfklnbnh)にアクセスしPageSpeedをインストールします。
 2. `http://192.168.56.131/wordpress/`にアクセスします
 3. [Ctrl+Shit+i]を押して[Page Speed]タブをクリックします

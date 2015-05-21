@@ -277,7 +277,7 @@ sudo systemctl start mysqld.service
 3. ディレクトリに移動します
  * `cd httpd-2.2.29`
 4. Makefileを作成します
- * `./configure`
+ * `./configure --enable-deflate`
 5. ビルドします
  * `make`
 6. インストールします
@@ -379,12 +379,141 @@ sudo make install
 ```
 sudo vi /usr/local/apache2/htdocs/wordpress/wp-config.php
 ※`Ctrl+Shit+V`でコピーしたテキストをペーストします
-```
 ペーストして保存したら「インストール実行」をクリック
+```
 7. 必要情報を入力したら「Wordpressをインストール」をクリックして続行(各項目の説明は既に書いたので省略します。
-8. ユーザ名とパスワードを入力後「ログイン」をクリック
+8. ユーザ名とパスワードを入力後「ログイン」をクリック   
 9. ダッシュボードでサイトタイトルをマウスでホバーして「サイトの表示」を押してサイトが表示されればインストール完了。
 
 ## 2-4 ベンチマークを取る
+
+### abコマンドのインストール
+1. Ubuntu側にabコマンドをインストールします。
+ * `sudo apt-get install apache2-utils`
+2. ベンチマーク実行
+```
+※同時接続数100・リクエスト数100
+ab -n 1000 -c 100 http://192.168.56.131:80/
+```
+
+### PageSpeed
+Google ChromeにPageSpeed拡張をインストールし、ベンチマークを取ります。
+1. [chromeウェブストア](https://chrome.google.com/webstore/detail/page-speed-insights-with/lanlbpjbalfkflkhegagflkgcfklnbnh)にアクセスしPageSpeedをインストールします。
+2. `http://192.168.56.131/wordpress/`にアクセスします
+3. [Ctrl+Shit+i]を押して[Page Speed]タブをクリックします
+4. [START ANALYZING]をクリックしてベンチマークを実行します
+
+### Wordpressの高速化
+
+立ち上げたWordpressを高速化し、ab および PageSpeedを使用して、改善されたかを確認します。
+1. apacheでコンテンツを圧縮するのに必要なモジュールをコンパイルします。
+ * `sudo /usr/local/apache2/bin/apxs -c -i -a /home/vagrant/httpd-2.2.29/modules/filters/mod_deflate.c`
+2. httpd.confを編集してコンテンツを圧縮する設定をします。
+```
+sudo vi /usr/local/apache2/conf/httpd.conf
+```
+以下を最終行に追記
+```
+<Location />
+ # Insert filter
+ SetOutputFilter DEFLATE
+ SetEnvIfNoCase Request_URI \
+ \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+ </Location>
+```
+3. Google Chromeのキャッシュをクリアします
+
+### ベンチマーク結果
+高速化前と高速化後のベンチマーク結果
+
+Apache Bench   
+```
+//高速化前
+Server Software:        Apache/2.2.29
+Server Hostname:        192.168.56.131
+Server Port:            80
+
+Document Path:          /
+Document Length:        44 bytes
+
+Concurrency Level:      100
+Time taken for tests:   0.568 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      306000 bytes
+HTML transferred:       44000 bytes
+Requests per second:    1759.07 [#/sec] (mean)
+Time per request:       56.848 [ms] (mean)
+Time per request:       0.568 [ms] (mean, across all concurrent requests)
+Transfer rate:          525.66 [Kbytes/sec] received
+
+Connection Times (ms)
+min  mean[+/-sd] median   max
+Connect:        0    1   1.3      0       5
+Processing:    33   54  17.0     48     177
+Waiting:       32   53  13.6     47     112
+Total:         36   55  17.7     48     177
+
+Percentage of the requests served within a certain time (ms)
+50%     48
+66%     51
+75%     55
+80%     61
+90%     69
+95%     95
+98%    114
+99%    117
+100%    177 (longest request)
+
+```
+⇣⇣⇣⇣⇣⇣⇣
+```
+//高速化後
+Server Software:        Apache/2.2.29
+Server Hostname:        192.168.56.131
+Server Port:            80
+
+Document Path:          /
+Document Length:        44 bytes
+
+Concurrency Level:      100
+Time taken for tests:   0.569 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      329000 bytes
+HTML transferred:       44000 bytes
+Requests per second:    1758.63 [#/sec] (mean)
+Time per request:       56.862 [ms] (mean)
+Time per request:       0.569 [ms] (mean, across all concurrent requests)
+Transfer rate:          565.03 [Kbytes/sec] received
+
+Connection Times (ms)
+min  mean[+/-sd] median   max
+Connect:        0    1   3.9      0      19
+Processing:    39   53   6.3     53      90
+Waiting:       38   53   6.1     53      82
+Total:         39   55   9.6     53     101
+
+Percentage of the requests served within a certain time (ms)
+50%     53
+66%     54
+75%     55
+80%     55
+90%     58
+95%     79
+98%     92
+99%     97
+100%    101 (longest request)
+```
+PageSpeed
+```
+//高速化前
+Page Speed Score: 67/100
+```
+⇣⇣⇣⇣⇣⇣⇣⇣
+```
+//高速化後
+Page Speed Score: 78/100
+```
 
 ## 2-4 セキュリティチェック

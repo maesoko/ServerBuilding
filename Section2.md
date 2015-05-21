@@ -397,6 +397,7 @@ ab -n 1000 -c 100 http://192.168.56.131:80/
 ```
 
 ### PageSpeed
+
 Google ChromeにPageSpeed拡張をインストールし、ベンチマークを取ります。
 1. [chromeウェブストア](https://chrome.google.com/webstore/detail/page-speed-insights-with/lanlbpjbalfkflkhegagflkgcfklnbnh)にアクセスしPageSpeedをインストールします。
 2. `http://192.168.56.131/wordpress/`にアクセスします
@@ -506,12 +507,12 @@ Percentage of the requests served within a certain time (ms)
 100%    101 (longest request)
 ```
 PageSpeed
-```
+```console
 //高速化前
 Page Speed Score: 67/100
 ```
 ⇣⇣⇣⇣⇣⇣⇣⇣
-```
+```console
 //高速化後
 Page Speed Score: 78/100
 ```

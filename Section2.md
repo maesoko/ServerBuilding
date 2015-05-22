@@ -340,15 +340,8 @@ sudo make install
 4. コンパイルオプションを指定していきます
 ```
 ./configure \
---with-apxs2=/usr/local/apache/bin/apxs \
+--with-apxs2=/usr/local/apache2/bin/apxs \
 --with-mysql \
---prefix=/usr/local/apache/php \
---with-config-file-path=/usr/local/apache/php \
---enable-force-cgi-redirect \
---disable-cgi \
---with-zlib \
---with-gettext \
---with-gdbm
 ```
 5. ビルドしてインストールします
 ```

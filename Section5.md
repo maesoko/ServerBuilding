@@ -7,7 +7,7 @@
 ## 5-2 bindの設定
 
 ### named.confの編集
- [master-named.conf](Section5/ansible/master-named.conf)と[slave-named.conf](ansible/slave-named.conf)を参照して、master-named.confとslave-named.confを編集します。
+ [master-named.conf](Section5/ansible/master-named.conf)と[slave-named.conf](Section5/ansible/slave-named.conf)を参照して、master-named.confとslave-named.confを編集します。
 
 ### ゾーンファイルの作成
  [ゾーンファイル](Section5/ansible/zone.s13012.com)を参照してゾーンファイルを作成し、レコードを返すように設定します。

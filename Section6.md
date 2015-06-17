@@ -116,7 +116,7 @@ Section5で作ったDNSの情報をRoute53に突っ込みます。
 
 ### Route53 ゾーンファイル作成
 AWSコンソール > サービス > Route53 > Hosted Zones > Create Hosted Zoneをクリックします。   
- * Domain Name: s13012
+ * Domain Name: s13012.com
  * Comment: 任意のコメント
  * Type: Public Hosted Zone
 
@@ -139,8 +139,112 @@ aws s3 cp ファイル名 s3://バケット名/
 作成したバケットのページを更新して、ファイルがアップロードされているのを確認できれば完了 
 
 ## 6-5 CloudFront 
+6-1で作ったAMIを起動し、CloudFrontに登録します。登録して直接アクセスするのとCloudFront経由するのどっちが速いかベンチマークを取ります。
+
+### AMIの起動
+6-1で作成したAMIを選択し、EC2のインスタンスを起動します。
+```
+aws ec2 run-instances \  
+--image-id [6-1で作成したAMIのID] \
+--key-name 'キーペア名' \
+--instance-type t2.micro \
+--region "ap-northeast-1" \
+--count 1
+```
+
+### CloudFrontを立ち上げる
+
+AWSコンソール > サービス > CloudFront > Create Distributionの順に進みます
+
+1. Select delivery method: Webを選択
+2. Create distribution
+ * Origin Domain Name: EC2インスタンスのパプリックDNS
+ * その他詳細設定はデフォルトのまま
+3. ディストリビューション一覧画面で、作成したディストリビューションのStatusが「Deployed」になるまで待機
+4. CloudFrontのドメインからWordPressが表示されれば完了
+
+### Wordpressが重い場合の対処法
+インスタンスにSSH接続し、次を実行します。
+```
+$ mysql -u s13012 -p
+Enter password: [mysqlのパスワード]
+
+mysql> UPDATE wp_options SET option_value = "/" where option_id in (1,2);
+```
+
+### ベンチマーク
+直接アクセスするのとCloudFront経由するのどっちが速いかabコマンドでベンチマークを取ってみましょう。
+
+```
+ab -X 172.16.40.1:8888 [サイトのURL]
+```
+
+### ベンチ結果
+
+```console
+#EC2
+
+Server Software:        nginx/1.6.2
+Server Hostname:        ec2-52-68-221-6.ap-northeast-1.compute.amazonaws.com
+Server Port:            80
+
+Document Path:          /
+Document Length:        8486 bytes
+
+Concurrency Level:      1
+Time taken for tests:   0.223 seconds
+Complete requests:      1
+Failed requests:        0
+Total transferred:      8831 bytes
+HTML transferred:       8486 bytes
+Requests per second:    4.48 [#/sec] (mean)
+Time per request:       223.238 [ms] (mean)
+Time per request:       223.238 [ms] (mean, across all concurrent requests)
+Transfer rate:          38.63 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+              Connect:        1    1   0.0      1       1
+              Processing:   222  222   0.0    222     222
+              Waiting:      213  213   0.0    213     213
+              Total:        223  223   0.0    223     223
+
+```
+
+```
+#CloudFront
+
+Server Software:        nginx/1.6.2
+Server Hostname:        d1de8lpaw19c0y.cloudfront.net
+Server Port:            80
+
+Document Path:          /
+Document Length:        8486 bytes
+
+Concurrency Level:      1
+Time taken for tests:   0.132 seconds
+Complete requests:      1
+Failed requests:        0
+Total transferred:      9009 bytes
+HTML transferred:       8486 bytes
+Requests per second:    7.56 [#/sec] (mean)
+Time per request:       132.316 [ms] (mean)
+Time per request:       132.316 [ms] (mean, across all concurrent requests)
+Transfer rate:          66.49 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+              Connect:        1    1   0.0      1       1
+              Processing:   131  131   0.0    131     131
+              Waiting:      119  119   0.0    119     119
+              Total:        132  132   0.0    132     132
+
+```
 
 ## 6-6 RDS
+RDSを立ち上げて、6-1で作ったAMIのWordpressのDBをRDSに向けてみよう。
+
+
 
 ## 6-7 ELB
 

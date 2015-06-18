@@ -169,6 +169,7 @@ AWSコンソール > サービス > CloudFront > Create Distributionの順に進
 $ mysql -u s13012 -p
 Enter password: [mysqlのパスワード]
 
+mysql> use [データベース名]
 mysql> UPDATE wp_options SET option_value = "/" where option_id in (1,2);
 ```
 
@@ -176,7 +177,11 @@ mysql> UPDATE wp_options SET option_value = "/" where option_id in (1,2);
 直接アクセスするのとCloudFront経由するのどっちが速いかabコマンドでベンチマークを取ってみましょう。
 
 ```
-ab -X 172.16.40.1:8888 [サイトのURL]
+$ ssh s13012@172.16.40.2
+
+Password for s13012@grus: [設定したパスワード]
+
+$ ab [サイトのURL]
 ```
 
 ### ベンチ結果
@@ -211,7 +216,7 @@ Connection Times (ms)
 
 ```
 
-```
+```console
 #CloudFront
 
 Server Software:        nginx/1.6.2
@@ -241,10 +246,61 @@ Connection Times (ms)
 
 ```
 
+### 地域ごとのアクセス制限
+作成したCloudFrontのIDを選択し、Restrictionsタブを選択後、Editをクリック
+
+ * Enable Geo-Restriction: Yesにチェック
+ * Restriction Type: BlackListにチェック
+
+アクセス制限をかける国を選択し、「Add」をクリック   
+「Yes,Edit」をクリックして作成し、作成したフィルターにチェックを入れれば完了。
+
 ## 6-6 RDS
 RDSを立ち上げて、6-1で作ったAMIのWordpressのDBをRDSに向けてみよう。
 
+### DBインスタンスの起動
+AWSコンソール > RDS > DBインスタンスの起動
 
+ステップ1
+ * エンジンの選択: MySQL
+
+ステップ2
+ * 本番稼働用にこのデータベースを使用する予定はありますか?: 「いいえ」にチェック
+
+ステップ3
+ * DBインスタンスのクラス:db.t2.micro
+ * マルチAZ配置: はい
+ * ストレージタイプ: マグネティック
+ * DBインスタンス識別子: 分かりやすい識別子
+ * マスターユーザの名前: 適当のユーザー名
+ * マスターパスワード: 適当なパスワード
+ * パスワードの確認: パスワード再入力
+
+ステップ4
+ * パブリックアクセス可能: いいえ
+ * データベースの名前: 適当なDB名
+
+### EC2インスタンスからDBインスタンスへ接続
+DBインスタンスの個のセキュリティグループの送信元を「0.0.0.0/0」に変更します。
+
+EC2インスタンスにSSH接続し、RDSのMySQLに接続できる事を確認します。
+
+```
+mysql –h [エンドポイント] -P 3306 –u [ユーザー名] –p [サーバー名]
+```
+
+wp-config.phpを削除します
+```
+sudo rm /usr/share/nginx/wordpress/wp-config.php
+```
+
+ブラウザでインスタンスのパブリックIPにアクセスし、Wordpressを開き、必要情報を入力します。
+ * データベース名: [DBインスタンスのDB名]
+ * ユーザー名: [DBインスタンスのユーザ名]
+ * パスワード: [DBインスタンスのパスワード]
+ * データベースのホスト名: [エンドポイント]
+
+インストール後、Wordpressのダッシュボードが開ければ完了。
 
 ## 6-7 ELB
 

@@ -253,7 +253,7 @@ Connection Times (ms)
  * Restriction Type: BlackListにチェック
 
 アクセス制限をかける国を選択し、「Add」をクリック   
-「Yes,Edit」をクリックして作成し、作成したフィルターにチェックを入れれば完了。
+「Yes,Edit」をクリックして作成したら完了。
 
 ## 6-6 RDS
 RDSを立ち上げて、6-1で作ったAMIのWordpressのDBをRDSに向けてみよう。
@@ -289,6 +289,7 @@ EC2インスタンスにSSH接続し、RDSのMySQLに接続できる事を確認
 mysql –h [エンドポイント] -P 3306 –u [ユーザー名] –p [サーバー名]
 ```
 
+### Wordpressのインストール
 wp-config.phpを削除します
 ```
 sudo rm /usr/share/nginx/wordpress/wp-config.php
@@ -303,5 +304,47 @@ sudo rm /usr/share/nginx/wordpress/wp-config.php
 インストール後、Wordpressのダッシュボードが開ければ完了。
 
 ## 6-7 ELB
+6-1で作ったAMIを3台ぶんくらい立ち上げてELBに登録し、負荷が割り振られているか確認してみよう。
+
+6-1で作ったAMIを選択し、インスタンスを3台起動します。
+
+### ロードバランサーの作成
+AWSコンソール > EC2 > ロードバランサー(右側のメニュー)
+
+ステップ1
+ * ロードバランサー名: 任意のELB名
+
+ステップ2
+ * 既存のセキュリティーグループを選択: default
+
+ステップ4
+ * pingパス: /
+
+ステップ5
+ * 作成した3台のインスタンスを選択します
+
+### MySQLの設定
+起動したインスタンス分のターミナルを起動し、そのインスタンスにSSH接続し、次をすべてのターミナルで実行します。
+
+```
+$ mysql -u root -p
+
+Enter password: [mysqlのパスワード]
+
+mysql> use [データベース名]
+mysql> UPDATE wp_options SET option_value = "/" where option_id in (1,2);
+mysql> exit
+```
+
+実行後、ロードバランサーのインスタンスのステータスがInServiceなるまで待機後次を実行
+
+```
+sudo tail -f /var/log/nginx/access.log
+```
+
+### 負荷が分散しているか確認
+ロードバランサーのDNSにブラウザでアクセスします。
+
+すべてのターミナルが見える状況でなんか以下更新して、分散されているのを確認できれば完了。
 
 ## 6-8 API叩いてみよう

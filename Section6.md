@@ -336,7 +336,7 @@ mysql> UPDATE wp_options SET option_value = "/" where option_id in (1,2);
 mysql> exit
 ```
 
-実行後、ロードバランサーのインスタンスのステータスがInServiceなるまで待機後次を実行
+実行後、ロードバランサーのインスタンスのステータスがInServiceなるまで待機後、次を実行
 
 ```
 sudo tail -f /var/log/nginx/access.log
@@ -345,6 +345,6 @@ sudo tail -f /var/log/nginx/access.log
 ### 負荷が分散しているか確認
 ロードバランサーのDNSにブラウザでアクセスします。
 
-すべてのターミナルが見える状況でなんか以下更新して、分散されているのを確認できれば完了。
+すべてのターミナルが見える状況で何回か更新して、分散されているのを確認できれば完了。
 
 ## 6-8 API叩いてみよう
